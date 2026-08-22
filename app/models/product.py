@@ -3,8 +3,7 @@ from sqlalchemy.types import String, Integer, Numeric, DateTime
 from sqlalchemy import ForeignKey
 from datetime import datetime, timezone
 from typing import Optional
-from base import Base
-from category import Category
+from ..core.database import Base
 
 class Product(Base):
     __tablename__ = "products"
