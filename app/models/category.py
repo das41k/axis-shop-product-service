@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import func
 from sqlalchemy.types import Integer, String, DateTime
 from datetime import datetime, timezone
 from typing import Optional
@@ -14,5 +15,16 @@ class Category(Base):
     
     products: Mapped[list["Product"]] = relationship("Product", back_populates="category")
     
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False) # Мировое время
-    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, onupdate=lambda: datetime.now(timezone.utc)) # Автоматическое обновление при UPDATE
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        server_default=func.now(),   # <-- Берем время из БД
+        nullable=False
+    )
+    
+    # Обновление: БД сама обновляет время при каждом изменении строки
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), 
+        server_default=func.now(),   # <-- На случай, если не указали при вставке
+        onupdate=func.now(),         # <-- БД сама обновляет при UPDATE
+        nullable=False
+    )
