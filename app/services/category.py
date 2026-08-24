@@ -15,7 +15,7 @@ class CategoryService:
     
     async def get_by_id(self, category_id: int) -> Optional[CategoryResponse]:
         category = await self.category_repository.get_by_id(category_id)
-        if not category:
+        if category is None:
             raise CategoryNotFoundException(f"Category with ID: {category_id} not found")
         return CategoryResponse.model_validate(category)
         
@@ -27,7 +27,7 @@ class CategoryService:
     async def update(self, category_id: int, category_update: CategoryUpdate) -> Optional[CategoryResponse]:
         data = category_update.model_dump()
         category = await self.category_repository.update(category_id, data)
-        if not category:
+        if category is None:
              raise CategoryNotFoundException(f"Category with ID: {category_id} not found")
         return CategoryResponse.model_validate(category)
     

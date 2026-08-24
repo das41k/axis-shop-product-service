@@ -30,7 +30,8 @@ class CategoryRepository(AbstractRepository[Category]):
             return None
         
         for key, value in data.items():
-            setattr(category, key, value)
+            if value is not None:
+                setattr(category, key, value)
         
         await self.session.commit()
         await self.session.refresh(category)
@@ -41,4 +42,3 @@ class CategoryRepository(AbstractRepository[Category]):
         result = await self.session.execute(stmt)
         await self.session.commit()
         return result.rowcount > 0
-        

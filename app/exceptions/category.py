@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 class CategoryNotFoundException(HTTPException):
     def __init__(
         self,
-        detail: str = "Product not found",
+        detail: str = "Category not found",
         headers: dict | None = None,
     ):
         super().__init__(

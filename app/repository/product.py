@@ -10,7 +10,8 @@ class ProductRepository(AbstractRepository[Product]):
         self.session = session
         
     async def get_all(self) -> list[Product]:
-        return await self.session.scalars(select(Product).order_by(Product.title)).all()
+        result = await self.session.scalars(select(Product).order_by(Product.title))
+        return result.all()
     
     async def get_by_id(self, product_id: int) -> Optional[Product]:
         return await self.session.get(Product, product_id)
@@ -29,7 +30,8 @@ class ProductRepository(AbstractRepository[Product]):
             return None
         
         for key, value in data.items():
-            setattr(product, key, value)
+             if value is not None:
+                setattr(product, key, value)
             
         await self.session.commit()
         await self.session.refresh(product)
