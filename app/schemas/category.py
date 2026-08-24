@@ -14,7 +14,7 @@ class CategoryResponse(BaseModel):
     
     created_at: datetime
     updated_at: datetime
-
+    model_config = {"from_attributes": True}  
 
 class CategoryCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=30, description= "Название категории обязательно и занимает от 3 до 30 символов")
