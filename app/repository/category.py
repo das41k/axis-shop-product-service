@@ -11,7 +11,8 @@ class CategoryRepository(AbstractRepository[Category]):
         self.session = session
     
     async def get_all(self) -> list[Category]:
-        return await self.session.scalars(select(Category).order_by(Category.title)).all()
+        result = await self.session.scalars(select(Category).order_by(Category.title))
+        return result.all()
     
     async def get_by_id(self, category_id: int) -> Optional[Category]:
         return await self.session.get(Category, category_id)
