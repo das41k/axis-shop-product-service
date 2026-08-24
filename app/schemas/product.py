@@ -28,13 +28,15 @@ class ProductCreate(BaseModel):
     quantity: int = Field(..., qe = 0, description="Количество обьязательно и не может быть отрицательным")
     
     category_id: int =  Field(..., gt= 0, description="ID категории обязателен и больше 0")
+    
+    model_config = {"from_attributes": True} 
 
     
 class ProductUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
         
     title: Optional[str] = Field(None, min_length=3, max_length=30, description= "Название продукта обязательно и занимает от 3 до 30 символов")
-    description: Optional[str] = Field(min_length=5, max_length=100, description= "Описание продукта от 5 до 100 символов")
+    description: Optional[str] = Field(None, min_length=5, max_length=100, description= "Описание продукта от 5 до 100 символов")
         
     price: Optional[float] = Field(None, qt = 0, description = "Цена обязательна и должна быть больше 0")
     quantity: Optional[int] = Field(None, qe = 0, description="Количество обьязательно и не может быть отрицательным")
