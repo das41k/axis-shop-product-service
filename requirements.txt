@@ -13,3 +13,6 @@ uvicorn[standard]==0.34.0
 pydantic==2.10.4
 pydantic-core==2.27.2
 pydantic-settings==2.6.1
+
+# Logging
+loguru==0.7.3
