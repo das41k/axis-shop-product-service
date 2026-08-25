@@ -6,6 +6,7 @@ from loguru import logger
 from typing import Optional
 from .base import AbstractCategoryRepository
 from ..models.category import Category
+from ..models.product import Product
 
 
 class CategoryRepository(AbstractCategoryRepository):
@@ -83,4 +84,15 @@ class CategoryRepository(AbstractCategoryRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.error(f"Ошибка БД при удалении категории {category_id}: {e}")
+            raise
+        
+    async def has_products(self, category_id: int) -> bool:
+        """Проверка существования товаров у категории"""
+        try:
+            stmt = select(exists().where(Product.category_id == category_id))
+            result = await self.session.execute(stmt)
+            return result.scalar()
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            logger.error(f"Ошибка БД при проверке существования товаров у категории {category_id}: {e}")
             raise

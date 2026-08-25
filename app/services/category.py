@@ -3,7 +3,7 @@ from loguru import logger
 
 from ..repository.base import AbstractCategoryRepository
 from ..schemas.category import CategoryCreate, CategoryUpdate, CategoryResponse
-from ..exceptions.category import CategoryNotFoundException, CategoryIsExistsException
+from ..exceptions.category import CategoryNotFoundException, CategoryIsExistsException, CategoryContainsProductsException
 
 class CategoryService:
     def __init__(self, category_repository: AbstractCategoryRepository):
@@ -62,6 +62,13 @@ class CategoryService:
     
     async def delete_by_id(self, category_id: int) -> None:
         logger.info(f"Удаление категории с ID: {category_id}")
+        logger.debug(f"Проверяем есть ли у категории с ID: {category_id} товары")
+        if await self.category_repository.has_products(category_id):
+            logger.warning(f"Нельзя удалить категорию с ID: {category_id}, т.к у нее есть товары")
+            raise CategoryContainsProductsException(f"Нельзя удалить категорию с ID: {category_id}, т.к у нее есть товары")
+        logger.debug(f"У категории с ID: {category_id} товаров нет")
+        
+        logger.debug(f"Удаляем категорию с ID: {category_id}")
         deleted = await self.category_repository.delete_by_id(category_id)
         if not deleted:
             logger.warning(f"Категория с ID: {category_id} не найдена для удаления")

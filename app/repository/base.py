@@ -30,3 +30,7 @@ class AbstractCategoryRepository(AbstractRepository[Category], ABC):
     @abstractmethod
     async def exists_by_title(self, title: str) -> bool:
         raise NotImplementedError
+    
+    @abstractmethod
+    async def has_products(self, id: int) -> bool:
+        raise NotImplementedError
