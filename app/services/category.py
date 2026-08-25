@@ -27,6 +27,7 @@ class CategoryService:
         
     async def create(self, category_create: CategoryCreate) -> CategoryResponse:
         logger.info(f"Создание категории: '{category_create.title}'")
+        logger.debug(f"Проверяем есть ли уже категориями с названием: {category_create.title}")
         data = category_create.model_dump()
         category = await self.category_repository.create(data)
         logger.info(f"Категория создана: '{category.title}' (ID: {category.id})")
