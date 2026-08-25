@@ -56,13 +56,9 @@ class CategoryRepository(AbstractCategoryRepository):
             logger.error(f"Ошибка БД при создании категории: {e}")
             raise
 
-    async def update(self, category_id: int, data: dict) -> Optional[Category]:
+    async def update(self, category: Category, data: dict) -> Category:
         """Обновление категории"""
         try:
-            category = await self.get_by_id(category_id)
-            if not category:
-                return None
-            
             for key, value in data.items():
                 if value is not None:
                     setattr(category, key, value)
@@ -73,7 +69,7 @@ class CategoryRepository(AbstractCategoryRepository):
 
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.error(f"Ошибка БД при обновлении категории {category_id}: {e}")
+            logger.error(f"Ошибка БД при обновлении категории {category.id}: {e}")
             raise
 
     async def delete_by_id(self, category_id: int) -> bool:
