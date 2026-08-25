@@ -1,13 +1,12 @@
 from typing import Optional
 from loguru import logger
 
-from ..repository.base import AbstractRepository
-from ..models.category import Category
+from ..repository.base import AbstractCategoryRepository
 from ..schemas.category import CategoryCreate, CategoryUpdate, CategoryResponse
-from ..exceptions.category import CategoryNotFoundException
+from ..exceptions.category import CategoryNotFoundException, CategoryIsExistsException
 
 class CategoryService:
-    def __init__(self, category_repository: AbstractRepository[Category]):
+    def __init__(self, category_repository: AbstractCategoryRepository):
         self.category_repository = category_repository
         
     async def get_all(self) -> list[CategoryResponse]:
@@ -21,13 +20,20 @@ class CategoryService:
         category = await self.category_repository.get_by_id(category_id)
         if category is None:
             logger.warning(f"Категория с ID: {category_id} не найдена")
-            raise CategoryNotFoundException(f"Категория с IDD: {category_id} не найдена")
+            raise CategoryNotFoundException(f"Категория с ID: {category_id} не найдена")
         logger.info(f"Найдена категория: '{category.title}' (ID: {category_id})")
         return CategoryResponse.model_validate(category)
         
     async def create(self, category_create: CategoryCreate) -> CategoryResponse:
         logger.info(f"Создание категории: '{category_create.title}'")
         logger.debug(f"Проверяем есть ли уже категориями с названием: {category_create.title}")
+        category_title = category_create.title
+        if self.category_repository.exists_by_title(category_title):
+            logger.warning(f"Категория с названием {category_title} уже есть в системе")
+            raise CategoryIsExistsException(f"Категория с названием {category_title} уже есть в системе")
+        logger.debug(f"Категории с названием {category_title} нет в системе")
+        
+        logger.debug(f"Создаем категорию: {category_title}")
         data = category_create.model_dump()
         category = await self.category_repository.create(data)
         logger.info(f"Категория создана: '{category.title}' (ID: {category.id})")
