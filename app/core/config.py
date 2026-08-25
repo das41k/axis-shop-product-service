@@ -1,6 +1,10 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+    APP_NAME: str
+    APP_HOST: str
+    APP_PORT: int
+    
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
