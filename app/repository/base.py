@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Optional
+from ..models.category import Category
 
 T = TypeVar('T')
 
@@ -23,4 +24,13 @@ class AbstractRepository(ABC, Generic[T]):
     @abstractmethod
     async def delete_by_id(self, id: int) -> bool:
         raise NotImplementedError
+
+
+class AbstractCategoryRepository(AbstractRepository[Category], ABC):
+    @abstractmethod
+    async def exists_by_title(self, title: str) -> bool:
+        raise NotImplementedError
     
+    @abstractmethod
+    async def has_products(self, id: int) -> bool:
+        raise NotImplementedError

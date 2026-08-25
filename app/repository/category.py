@@ -1,14 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, exists
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from loguru import logger
 
 from typing import Optional
-from .base import AbstractRepository
+from .base import AbstractCategoryRepository
 from ..models.category import Category
+from ..models.product import Product
 
 
-class CategoryRepository(AbstractRepository[Category]):
+class CategoryRepository(AbstractCategoryRepository):
     
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -31,6 +32,16 @@ class CategoryRepository(AbstractRepository[Category]):
         except SQLAlchemyError as e:
             logger.error(f"Ошибка БД при получении категории {category_id}: {e}")
             raise
+        
+    async def exists_by_title(self, category_title: str) -> bool:
+        """Проверка на существование по Title"""
+        try:
+            stmt = select(exists().where(Category.title == category_title))
+            result = await self.session.execute(stmt)
+            return result.scalar()
+        except SQLAlchemyError as e:
+            logger.error(f"Ошибка БД при получении категории {category_title}: {e}")
+            raise
 
     async def create(self, data: dict) -> Category:
         """Создание категории"""
@@ -46,13 +57,9 @@ class CategoryRepository(AbstractRepository[Category]):
             logger.error(f"Ошибка БД при создании категории: {e}")
             raise
 
-    async def update(self, category_id: int, data: dict) -> Optional[Category]:
+    async def update(self, category: Category, data: dict) -> Category:
         """Обновление категории"""
         try:
-            category = await self.get_by_id(category_id)
-            if not category:
-                return None
-            
             for key, value in data.items():
                 if value is not None:
                     setattr(category, key, value)
@@ -63,7 +70,7 @@ class CategoryRepository(AbstractRepository[Category]):
 
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.error(f"Ошибка БД при обновлении категории {category_id}: {e}")
+            logger.error(f"Ошибка БД при обновлении категории {category.id}: {e}")
             raise
 
     async def delete_by_id(self, category_id: int) -> bool:
@@ -77,4 +84,15 @@ class CategoryRepository(AbstractRepository[Category]):
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.error(f"Ошибка БД при удалении категории {category_id}: {e}")
+            raise
+        
+    async def has_products(self, category_id: int) -> bool:
+        """Проверка существования товаров у категории"""
+        try:
+            stmt = select(exists().where(Product.category_id == category_id))
+            result = await self.session.execute(stmt)
+            return result.scalar()
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            logger.error(f"Ошибка БД при проверке существования товаров у категории {category_id}: {e}")
             raise
