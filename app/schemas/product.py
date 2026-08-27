@@ -27,7 +27,7 @@ class ProductCreate(BaseModel):
     description: Optional[str] = Field(None, min_length=5, max_length=100, description= "Описание продукта от 5 до 100 символов")
     
     price: float = Field(..., gt = 0, description = "Цена обязательна и должна быть больше 0")
-    quantity: int = Field(..., ge = 0, description="Количество обьязательно и не может быть отрицательным")
+    quantity: int = Field(..., ge = 0, description="Количество обязательно и не может быть отрицательным")
     
     category_id: int =  Field(..., gt= 0, description="ID категории обязателен и больше 0") 
 
