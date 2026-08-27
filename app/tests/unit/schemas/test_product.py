@@ -1,189 +1,109 @@
+# tests/unit/schemas/test_product_schema.py
 import pytest
 from pydantic import ValidationError
 from app.schemas.product import ProductCreate, ProductUpdate
 
-valid_data = [
-    {"title": "Вилка", "description": "Очень удобная", "price": 100 ,"quantity": 3, "category_id": 1},
-    {"title": "Вилка", "price": 100 ,"quantity": 3, "category_id": 1},
-]
+# Импорты из новых файлов
+from app.tests.data.product_data import (
+    VALID_PRODUCT_DATA,
+    VALID_PRODUCT_UPDATE_DATA,
+    PRODUCT_INVALID_TITLE,
+    PRODUCT_INVALID_DESC,
+    PRODUCT_INVALID_PRICE,
+    PRODUCT_INVALID_QUANTITY,
+    PRODUCT_INVALID_CATEGORY_ID
+)
+from app.tests.helpers.validation_helpers import (
+    assert_validation_error,
+    assert_valid_model_creation
+)
 
-# ============ НЕВАЛИДНЫЕ ДАННЫЕ С ТИПАМИ ОШИБОК ============
-
-not_valid_title = [
-    ({"title": None, "price": 100 ,"quantity": 3, "category_id": 1}, "string_type"),
-    ({"title": "    ", "price": 100 ,"quantity": 3, "category_id": 1}, "string_too_short"),
-    ({"title": "a" * 31, "price": 100 ,"quantity": 3, "category_id": 1}, "string_too_long")
-]
-
-not_valid_desc = [
-    ({"title": "Вилка", "description": "   ", "price": 100 ,"quantity": 3, "category_id": 1}, "string_too_short"),
-    ({"title": "Вилка", "description": "a" * 101, "price": 100 ,"quantity": 3, "category_id": 1}, "string_too_long")
-]
-
-not_valid_price = [
-    ({"title": "Вилка", "price": None ,"quantity": 3, "category_id": 1}, "float_type"),
-    ({"title": "Вилка", "price": "string" ,"quantity": 3, "category_id": 1}, "float_parsing"),
-    ({"title": "Вилка", "price": 0, "quantity": 3, "category_id": 1}, "greater_than"),
-    ({"title": "Вилка", "price": -5, "quantity": 3, "category_id": 1}, "greater_than")
-]
-
-not_valid_quantity = [
-    ({"title": "Вилка", "price": 100, "quantity": None, "category_id": 1}, "int_type"),
-    ({"title": "Вилка", "price": 100, "quantity": "string", "category_id": 1}, "int_parsing"),
-    ({"title": "Вилка", "price": 100, "quantity": -5, "category_id": 1}, "greater_than_equal"),
-]
-
-not_valid_category_id = [
-    ({"title": "Вилка", "price": 100, "quantity": 3, "category_id": None}, "int_type"),
-    ({"title": "Вилка", "price": 100, "quantity": 3, "category_id": "string"}, "int_parsing"),
-    ({"title": "Вилка", "price": 100, "quantity": 3, "category_id": 0}, "greater_than"),
-    ({"title": "Вилка", "price": 100, "quantity": 3, "category_id": -5}, "greater_than"),
-    ({"title": "Вилка", "price": 100, "quantity": 3, "category_id": 5.7}, "int_from_float")
-]
 
 # ============ ТЕСТЫ ДЛЯ ProductCreate ============
 
-@pytest.mark.parametrize("data", valid_data)
-def test_valid_creation(data: dict):
-    product = ProductCreate(**data)
+class TestProductCreate:
     
-    assert product.title == data["title"]
-    assert product.price == data["price"]
-    assert product.quantity == data["quantity"]
-    assert product.category_id == data["category_id"]
+    @pytest.mark.parametrize("data", VALID_PRODUCT_DATA)
+    def test_valid_creation(self, data: dict):
+        """Тест создания с валидными данными"""
+        assert_valid_model_creation(ProductCreate, data)
     
-    if "description" in data:
-        assert product.description == data["description"]
-    else:
-        assert product.description is None
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_title)
-def test_not_valid_title_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductCreate(**data)
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_TITLE)
+    def test_invalid_title(self, data: dict, expected_type: str):
+        """Тест невалидного title"""
+        with pytest.raises(ValidationError) as exc:
+            ProductCreate(**data)
+        assert_validation_error(exc, "title", expected_type)
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "title"
-    assert errors[0]["type"] == expected_type
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_desc)
-def test_not_valid_desc_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductCreate(**data)
-        
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "description"
-    assert errors[0]["type"] == expected_type
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_DESC)
+    def test_invalid_description(self, data: dict, expected_type: str):
+        """Тест невалидного description"""
+        with pytest.raises(ValidationError) as exc:
+            ProductCreate(**data)
+        assert_validation_error(exc, "description", expected_type)
     
-
-@pytest.mark.parametrize("data, expected_type", not_valid_price)
-def test_not_valid_price_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductCreate(**data)
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_PRICE)
+    def test_invalid_price(self, data: dict, expected_type: str):
+        """Тест невалидного price"""
+        with pytest.raises(ValidationError) as exc:
+            ProductCreate(**data)
+        assert_validation_error(exc, "price", expected_type)
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "price"
-    assert errors[0]["type"] == expected_type
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_QUANTITY)
+    def test_invalid_quantity(self, data: dict, expected_type: str):
+        """Тест невалидного quantity"""
+        with pytest.raises(ValidationError) as exc:
+            ProductCreate(**data)
+        assert_validation_error(exc, "quantity", expected_type)
     
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_CATEGORY_ID)
+    def test_invalid_category_id(self, data: dict, expected_type: str):
+        """Тест невалидного category_id"""
+        with pytest.raises(ValidationError) as exc:
+            ProductCreate(**data)
+        assert_validation_error(exc, "category_id", expected_type)
 
-@pytest.mark.parametrize("data, expected_type", not_valid_quantity)
-def test_not_valid_quantity_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductCreate(**data)
-        
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "quantity"
-    assert errors[0]["type"] == expected_type
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_category_id)
-def test_not_valid_category_id_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductCreate(**data)
-        
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "category_id"
-    assert errors[0]["type"] == expected_type
 
 # ============ ТЕСТЫ ДЛЯ ProductUpdate ============
 
-@pytest.mark.parametrize("data", valid_data + [
-    {"title": "Новая вилка"},
-    {"price": 200.50},
-    {"quantity": 10},
-    {"category_id": 5},
-    {"description": "Новое описание"},
-    {},
-    {"title": "Вилка", "price": 150.75},
-    {"quantity": 7, "category_id": 3},
-])
-def test_valid_updation(data: dict):
-    product = ProductUpdate(**data)
+class TestProductUpdate:
     
-    for field_name in ProductUpdate.model_fields.keys():
-            if field_name in data:
-                assert getattr(product, field_name) == data[field_name]
-            else:
-                assert getattr(product, field_name) is None
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_title[1:])
-def test_not_valid_title_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductUpdate(**data)
+    @pytest.mark.parametrize("data", VALID_PRODUCT_UPDATE_DATA)
+    def test_valid_update(self, data: dict):
+        """Тест обновления с валидными данными"""
+        assert_valid_model_creation(ProductUpdate, data)
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "title"
-    assert errors[0]["type"] == expected_type
- 
-
-@pytest.mark.parametrize("data, expected_type", not_valid_desc[1:])
-def test_not_valid_desc_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductUpdate(**data)
-        
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "description"
-    assert errors[0]["type"] == expected_type
- 
-
-@pytest.mark.parametrize("data, expected_type", not_valid_price[1:])
-def test_not_valid_price_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductUpdate(**data)
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_TITLE[1:])
+    def test_invalid_title(self, data: dict, expected_type: str):
+        """Тест невалидного title при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            ProductUpdate(**data)
+        assert_validation_error(exc, "title", expected_type)
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "price"
-    assert errors[0]["type"] == expected_type
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_DESC[1:])
+    def test_invalid_description(self, data: dict, expected_type: str):
+        """Тест невалидного description при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            ProductUpdate(**data)
+        assert_validation_error(exc, "description", expected_type)
     
-
-@pytest.mark.parametrize("data, expected_type", not_valid_quantity[1:])
-def test_not_valid_quantity_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductUpdate(**data)
-        
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "quantity"
-    assert errors[0]["type"] == expected_type
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_category_id[1:])
-def test_not_valid_category_id_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        ProductUpdate(**data)
-        
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "category_id"
-    assert errors[0]["type"] == expected_type
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_PRICE[1:])
+    def test_invalid_price(self, data: dict, expected_type: str):
+        """Тест невалидного price при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            ProductUpdate(**data)
+        assert_validation_error(exc, "price", expected_type)
+    
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_QUANTITY[1:])
+    def test_invalid_quantity(self, data: dict, expected_type: str):
+        """Тест невалидного quantity при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            ProductUpdate(**data)
+        assert_validation_error(exc, "quantity", expected_type)
+    
+    @pytest.mark.parametrize("data, expected_type", PRODUCT_INVALID_CATEGORY_ID[1:])
+    def test_invalid_category_id(self, data: dict, expected_type: str):
+        """Тест невалидного category_id при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            ProductUpdate(**data)
+        assert_validation_error(exc, "category_id", expected_type)

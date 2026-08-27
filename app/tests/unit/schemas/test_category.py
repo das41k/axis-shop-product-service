@@ -1,97 +1,58 @@
-from pydantic import ValidationError
+# tests/unit/schemas/test_category_schema.py
 import pytest
+from pydantic import ValidationError
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
-# ============ ВАЛИДНЫЕ ДАННЫЕ ============
+from app.tests.data.category_data import (
+    VALID_CATEGORY_DATA,
+    VALID_CATEGORY_UPDATE_DATA,
+    CATEGORY_INVALID_TITLE,
+    CATEGORY_INVALID_DESC
+)
+from app.tests.helpers.validation_helpers import (
+    assert_validation_error,
+    assert_valid_model_creation
+)
 
-valid_data = [
-    {"title": "Спальня", "description": "Очень удобные спальные товары"},
-    {"title": "Спальня"}
-]
-
-# ============ НЕВАЛИДНЫЕ ДАННЫЕ С ТИПАМИ ОШИБОК ============
-
-not_valid_title = [
-    ({"title": None}, "string_type"),
-    ({"title": "    "}, "string_too_short"),
-    ({"title": "a" * 31}, "string_too_long")
-]
-
-not_valid_desc = [
-    ({"title": "Ванная", "description": "     "}, "string_too_short"),
-    ({"title": "Ванная", "description": "a" * 101}, "string_too_long")
-]
-
-# ============ ТЕСТЫ ДЛЯ CategoryCreate ============
-
-@pytest.mark.parametrize("data", valid_data)
-def test_valid_creation(data: dict):
-    category = CategoryCreate(**data)
+class TestCategoryCreate:
     
-    assert category.title == data["title"]
+    @pytest.mark.parametrize("data", VALID_CATEGORY_DATA)
+    def test_valid_creation(self, data: dict):
+        """Тест создания с валидными данными"""
+        assert_valid_model_creation(CategoryCreate, data)
     
-    if "description" in data:
-        assert category.description == data["description"]
-    else:
-        assert category.description is None
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_title)
-def test_not_valid_title_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        CategoryCreate(**data)
+    @pytest.mark.parametrize("data, expected_type", CATEGORY_INVALID_TITLE)
+    def test_invalid_title(self, data: dict, expected_type: str):
+        """Тест невалидного title"""
+        with pytest.raises(ValidationError) as exc:
+            CategoryCreate(**data)
+        assert_validation_error(exc, "title", expected_type)
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "title"
-    assert errors[0]["type"] == expected_type
+    @pytest.mark.parametrize("data, expected_type", CATEGORY_INVALID_DESC)
+    def test_invalid_description(self, data: dict, expected_type: str):
+        """Тест невалидного description"""
+        with pytest.raises(ValidationError) as exc:
+            CategoryCreate(**data)
+        assert_validation_error(exc, "description", expected_type)
 
 
-@pytest.mark.parametrize("data, expected_type", not_valid_desc)
-def test_not_valid_desc_creation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        CategoryCreate(**data)
+class TestCategoryUpdate:
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "description"
-    assert errors[0]["type"] == expected_type
-
-# ============ ТЕСТЫ ДЛЯ CategoryUpdate ============
-
-@pytest.mark.parametrize("data", valid_data + [
-    {"description": "Очень удобные спальные товары"},
-    {"title": "Гостиная"},
-    {"title": "Кухня", "description": "Все для кухни"},
-    {},
-])
-def test_valid_updation(data: dict):
-    category = CategoryUpdate(**data)
+    @pytest.mark.parametrize("data", VALID_CATEGORY_UPDATE_DATA)
+    def test_valid_update(self, data: dict):
+        """Тест обновления с валидными данными"""
+        assert_valid_model_creation(CategoryUpdate, data)
     
-    for field_name in CategoryUpdate.model_fields.keys():
-        if field_name in data:
-            assert getattr(category, field_name) == data[field_name]
-        else:
-            assert getattr(category, field_name) is None
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_title[1:])
-def test_not_valid_title_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        CategoryUpdate(**data)
+    @pytest.mark.parametrize("data, expected_type", CATEGORY_INVALID_TITLE[1:])
+    def test_invalid_title(self, data: dict, expected_type: str):
+        """Тест невалидного title при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            CategoryUpdate(**data)
+        assert_validation_error(exc, "title", expected_type)
     
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "title"
-    assert errors[0]["type"] == expected_type
-
-
-@pytest.mark.parametrize("data, expected_type", not_valid_desc)
-def test_not_valid_desc_updation(data: dict, expected_type: str):
-    with pytest.raises(ValidationError) as ex:
-        CategoryUpdate(**data)
-    
-    errors = ex.value.errors()
-    assert len(errors) >= 1
-    assert errors[0]["loc"][0] == "description"
-    assert errors[0]["type"] == expected_type
+    @pytest.mark.parametrize("data, expected_type", CATEGORY_INVALID_DESC)
+    def test_invalid_description(self, data: dict, expected_type: str):
+        """Тест невалидного description при обновлении"""
+        with pytest.raises(ValidationError) as exc:
+            CategoryUpdate(**data)
+        assert_validation_error(exc, "description", expected_type)
