@@ -57,8 +57,9 @@ class CategoryService:
         
         logger.debug(f"Обновляем категорию с ID: {category_id}")
         data = category_update.model_dump()
-        logger.info(f"Категория обновлена: '{category.title}' (ID: {category_id})")
-        return CategoryResponse.model_validate(category)
+        category_up = await self.category_repository.update(category_id, data)
+        logger.info(f"Категория обновлена: '{category_up.title}' (ID: {category_id})")
+        return CategoryResponse.model_validate(category_up)
     
     async def delete_by_id(self, category_id: int) -> None:
         logger.info(f"Удаление категории с ID: {category_id}")
