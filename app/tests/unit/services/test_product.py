@@ -9,7 +9,7 @@ from app.exceptions.category import CategoryNotFoundException
 from app.models.category import Category
 from app.models.category import Category
 from app.schemas.product import ProductResponse, ProductCreate, ProductUpdate
-from app.tests.helpers.assertions import ProductAssertions
+from app.tests.helpers.assertions import assert_product_equal
 
 @pytest.fixture
 def product_repo(mocker):
@@ -83,7 +83,7 @@ async def test_get_all(product_service, product_repo, get_list_product):
     assert len(result) > 0
         
     for schema, model in zip(result, products):
-        ProductAssertions.assert_product_equal(schema, model)
+        assert_product_equal(schema, model)
             
     product_repo.get_all.assert_called_once()
         
@@ -96,7 +96,7 @@ async def test_valid_get_by_id(product_service, product_repo, get_product):
     result = await product_service.get_by_id(get_product.id)
         
     assert result is not None
-    ProductAssertions.assert_product_equal(result, get_product)
+    assert_product_equal(result, get_product)
         
     product_repo.get_by_id.assert_called_once_with(get_product.id)
 
@@ -122,7 +122,7 @@ async def test_valid_create(product_service, product_repo, category_repo, get_pr
     result = await product_service.create(product_create_data)
     
     assert result is not None
-    ProductAssertions.assert_product_equal(result, get_product)
+    assert_product_equal(result, get_product)
     
     
     category_repo.get_by_id.assert_called_once_with(product_create_data.category_id)
@@ -151,7 +151,7 @@ async def test_valid_update(product_service, product_repo, category_repo, get_pr
     result = await product_service.update(get_product.id, product_update_data)
     
     assert result is not None     
-    ProductAssertions.assert_product_equal(result, get_product)
+    assert_product_equal(result, get_product)
     
     category_repo.get_by_id.assert_called_once_with(product_update_data.category_id)
     product_repo.update.assert_called_once_with(get_product.id, product_update_data.model_dump())
