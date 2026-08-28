@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import AsyncMock
 import uuid
 from datetime import timezone, datetime
 from app.services.product import ProductService
@@ -20,7 +21,7 @@ def category_repo(mocker):
     return mocker.AsyncMock(autospec=AbstractRepository[Category])
     
 @pytest.fixture
-def product_service(product_repo: AbstractRepository[Product], category_repo: AbstractRepository[Category]):
+def product_service(product_repo: AsyncMock, category_repo: AsyncMock):
     return ProductService(product_repo, category_repo)
 
 @pytest.fixture
