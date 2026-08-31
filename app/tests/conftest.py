@@ -1,3 +1,9 @@
+pytest_plugins = [
+    "app.tests.fixtures.category_fixtures",
+    "app.tests.fixtures.product_fixtures",
+    "app.tests.fixtures.schema_fixtures"
+]
+
 import pytest
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, AsyncEngine
