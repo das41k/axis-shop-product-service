@@ -65,9 +65,12 @@ class ProductService:
         logger.info(f"Продукт с ID: {product_id} успешно удален")
         
     async def validate_category_id(self, category_id: int) -> None:
+        if category_id is None:
+            logger.debug("Категория не передана, пропускаем проверку категории")
+            return
         logger.debug(f"Проверка существования категории с ID: {category_id}")
         category = await self.category_repository.get_by_id(category_id)
-        if not category and category_id is not None:
+        if category is None:
             logger.warning(f"Категория с ID: {category_id} не найдена")
             raise CategoryNotFoundException(f"Категория с ID: {category_id} не найдена")
         logger.debug(f"Категория с ID: {category_id} существует")
