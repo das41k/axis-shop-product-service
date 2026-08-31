@@ -17,11 +17,11 @@ class ProductResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "extra": "forbid"}
 
 
 class ProductCreate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
     
     title: str = Field(..., min_length=3, max_length=30, description= "Название продукта обязательно и занимает от 3 до 30 символов")
     description: Optional[str] = Field(None, min_length=5, max_length=100, description= "Описание продукта от 5 до 100 символов")
@@ -33,7 +33,7 @@ class ProductCreate(BaseModel):
 
     
 class ProductUpdate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         
     title: Optional[str] = Field(None, min_length=3, max_length=30, description= "Название продукта обязательно и занимает от 3 до 30 символов")
     description: Optional[str] = Field(None, min_length=5, max_length=100, description= "Описание продукта от 5 до 100 символов")

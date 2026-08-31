@@ -5,7 +5,7 @@ from ...schemas.product import ProductResponse, ProductUpdate, ProductCreate
 
 router = APIRouter()
 
-@router.get("/", response_model= list[ProductResponse])
+@router.get("", response_model= list[ProductResponse])
 async def get_all(service: ProductServiceDep):
     logger.info("GET /products - пришел запрос на получение всех продуктов")
     return await service.get_all()
@@ -15,7 +15,7 @@ async def get_by_id(id: int, service: ProductServiceDep):
     logger.info(f"GET /products/{id} - пришел запрос на получение продукта")
     return await service.get_by_id(id)
 
-@router.post("/", response_model= ProductResponse, status_code=201)
+@router.post("", response_model= ProductResponse, status_code=201)
 async def create(product_create: ProductCreate, service: ProductServiceDep):
     logger.info("POST /products - пришел запрос на создание продукта")
     return await service.create(product_create)

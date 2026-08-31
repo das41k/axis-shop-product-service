@@ -27,7 +27,7 @@ AsyncSessionLocal = async_sessionmaker(async_engine, expire_on_commit=False)
 # чтобы загрузить его актуальное состояние
 
 
-SessionLocal = sessionmaker(engine)
+SessionLocal = sessionmaker(engine, expire_on_commit=False)
 
 async def get_async_session():
     async with AsyncSessionLocal() as session:

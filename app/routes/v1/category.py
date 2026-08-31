@@ -6,7 +6,7 @@ from ...dependencies import CategoryServiceDep
 
 router = APIRouter()
 
-@router.get("/", response_model=list[CategoryResponse])
+@router.get("", response_model=list[CategoryResponse])
 async def get_all(service: CategoryServiceDep):
     logger.info("GET /categories - пришел запрос на получение всех категорий")
     return await service.get_all()
@@ -16,7 +16,7 @@ async def get_by_id(id: int, service: CategoryServiceDep):
     logger.info(f"GET /categories/{id} - пришел запрос на получение категории")
     return await service.get_by_id(id)
 
-@router.post("/", response_model = CategoryResponse, status_code=201)
+@router.post("", response_model = CategoryResponse, status_code=201)
 async def create(category_create: CategoryCreate, service: CategoryServiceDep):
     logger.info("POST /categories - пришел запрос на создание категории")
     return await service.create(category_create)

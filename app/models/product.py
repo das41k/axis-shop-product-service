@@ -5,6 +5,10 @@ from datetime import datetime
 import uuid
 from typing import Optional
 from ..core.database import Base
+
+def generate_sku() -> str:
+    return f"SKU-{uuid.uuid4().hex[:8].upper()}"
+
 class Product(Base):
     __tablename__ = "products"
     id: Mapped[int] = mapped_column(Integer, primary_key = True)
@@ -12,7 +16,7 @@ class Product(Base):
     title: Mapped[str] = mapped_column(String(30), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(100))
     
-    sku: Mapped[str] = mapped_column(String(30), nullable=False, unique=True, default=f"SKU-{uuid.uuid4().hex[:8].upper()}")
+    sku: Mapped[str] = mapped_column(String(30), nullable=False, unique=True, default=generate_sku)
     
     price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False,)
     quantity: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
