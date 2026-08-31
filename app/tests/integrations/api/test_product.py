@@ -116,17 +116,17 @@ async def test_update_returns_not_valid_schema(client: AsyncClient, schema_produ
     assert response.status_code == 422
     
 @pytest.mark.asyncio
-async def test_update_returns_not_found_category(client: AsyncClient, schema_product_update_not_found_category):
+async def test_update_returns_not_found_category(client: AsyncClient, create_product, schema_product_update_not_found_category):
     category_id = schema_product_update_not_found_category.category_id
-    response = await client.patch("/api/v1/products/1", 
+    product_id = create_product.id
+    response = await client.patch(f"/api/v1/products/{product_id}", 
                                   json=schema_product_update_not_found_category.model_dump())
     assert response.status_code == 404
     data = response.json()
     assert f"Категория с ID: {category_id} не найдена" in data["detail"]
 
 @pytest.mark.asyncio
-async def test_update_returns_not_found_product(client: AsyncClient, create_category, schema_product_update_valid):
-    schema_product_update_valid.category_id = create_category.id
+async def test_update_returns_not_found_product(client: AsyncClient, schema_product_update_valid):
     product_id = 99
     response = await client.patch(f"/api/v1/products/{product_id}", 
                                       json=schema_product_update_valid.model_dump())

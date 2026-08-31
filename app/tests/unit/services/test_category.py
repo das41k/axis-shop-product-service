@@ -135,7 +135,7 @@ async def test_valid_update(category_service, category_repo, category_data, cate
     
     category_repo.get_by_id.assert_called_once_with(category_data.id)
     category_repo.exists_by_title.assert_called_once_with(category_for_update_data.title)
-    category_repo.update.assert_called_once_with(category_data.id, category_for_update_data.model_dump())
+    category_repo.update.assert_called_once_with(category_data, category_for_update_data.model_dump())
     
 @pytest.mark.asyncio
 async def test_not_found_update(category_service, category_repo, category_for_update_data):

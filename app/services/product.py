@@ -41,16 +41,20 @@ class ProductService:
     
     async def update(self, product_id: int, product_update: ProductUpdate) -> Optional[ProductResponse]:
         logger.info(f"Обновление продукта с ID: {product_id}")
+        
+        logger.info(f"Поиск продукта с ID: {product_id}")
+        product = await self.product_repository.get_by_id(product_id)
+        if product is None:
+            logger.warning(f"Продукт с ID: {product_id} не найден для обновления")
+            raise ProductNotFoundException(f"Продукт с ID: {product_id} не найден")
+        
         category_id = product_update.category_id
         await self.validate_category_id(category_id)
         
         data = product_update.model_dump()
-        product = await self.product_repository.update(product_id, data)
-        if product is None:
-            logger.warning(f"Продукт с ID: {product_id} не найден для обновления")
-            raise ProductNotFoundException(f"Продукт с ID: {product_id} не найден")
-        logger.info(f"Продукт обновлен: '{product.title}' (ID: {product_id})")
-        return ProductResponse.model_validate(product)
+        product_update = await self.product_repository.update(product, data)
+        logger.info(f"Продукт обновлен: '{product_update.title}' (ID: {product_id})")
+        return ProductResponse.model_validate(product_update)
         
     async def delete(self, product_id: int) -> None:
         logger.info(f"Удаление продукта с ID: {product_id}")

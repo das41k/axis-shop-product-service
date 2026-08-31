@@ -44,13 +44,9 @@ class ProductRepository(AbstractRepository[Product]):
             logger.error(f"Ошибка БД при создании продукта: {e}")
             raise
 
-    async def update(self, product_id: int, data: dict) -> Optional[Product]:
+    async def update(self, product: Product, data: dict) -> Product:
         """Обновление продукта"""
         try:
-            product = await self.get_by_id(product_id)
-            if not product:
-                return None
-            
             for key, value in data.items():
                 if value is not None:
                     setattr(product, key, value)
