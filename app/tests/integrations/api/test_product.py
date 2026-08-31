@@ -7,7 +7,7 @@ from app.models.category import Category
 from app.schemas.product import ProductResponse, ProductCreate, ProductUpdate
 from app.tests.helpers.assertions import assert_product_equal
 
-@pytest.mark.asyncio
+
 async def test_get_all_returns_created_products(client: AsyncClient, create_products):
     response = await client.get("/api/v1/products")
     assert response.status_code == 200
@@ -24,7 +24,7 @@ async def test_get_all_returns_created_products(client: AsyncClient, create_prod
     for schema, model in zip(sorted_response, sorted_fixture):
         assert_product_equal(schema, model)
         
-@pytest.mark.asyncio
+
 async def test_get_all_returns_empty_list(client: AsyncClient, test_async_session):
     response = await client.get("/api/v1/products")
     assert response.status_code == 200
@@ -36,7 +36,7 @@ async def test_get_all_returns_empty_list(client: AsyncClient, test_async_sessio
     products = query_from_db.scalars().all()
     assert products == []
 
-@pytest.mark.asyncio
+
 async def test_get_by_id_returns_existing_record(client: AsyncClient, create_product):
     product_id = create_product.id
     response = await client.get(f"/api/v1/products/{product_id}")
@@ -46,7 +46,7 @@ async def test_get_by_id_returns_existing_record(client: AsyncClient, create_pro
     validate_product = ProductResponse.model_validate(data)
     assert_product_equal(validate_product, create_product)
     
-@pytest.mark.asyncio
+
 async def test_get_by_id_returns_not_found_product(client: AsyncClient):
     product_id = 99
     response = await client.get(f"/api/v1/products/{product_id}")
@@ -54,7 +54,7 @@ async def test_get_by_id_returns_not_found_product(client: AsyncClient):
     data = response.json()
     assert f"Продукт с ID: {product_id} не найден" in data["detail"]
 
-@pytest.mark.asyncio
+
 async def test_create_returns_success(client: AsyncClient, schema_product_create_valid, test_async_session):
     response = await client.post("/api/v1/products", json=schema_product_create_valid.model_dump())
     assert response.status_code == 201
@@ -71,7 +71,7 @@ async def test_create_returns_success(client: AsyncClient, schema_product_create
     assert db_product.quantity == schema_product_create_valid.quantity
     assert db_product.category_id == schema_product_create_valid.category_id
 
-@pytest.mark.asyncio
+
 async def test_create_returns_not_valid_schema(client: AsyncClient, schema_product_create_not_valid):
     """
     Тест проверяет, что API возвращает 422 при невалидных данных.
@@ -80,7 +80,7 @@ async def test_create_returns_not_valid_schema(client: AsyncClient, schema_produ
     response = await client.post("/api/v1/products", json=schema_product_create_not_valid)
     assert response.status_code == 422
 
-@pytest.mark.asyncio
+
 async def test_create_returns_not_found_category(client: AsyncClient, schema_product_create_not_found_category):
     response = await client.post("/api/v1/products", 
                                  json=schema_product_create_not_found_category.model_dump())
@@ -89,7 +89,7 @@ async def test_create_returns_not_found_category(client: AsyncClient, schema_pro
     data = response.json()
     assert f"Категория с ID: {category_id} не найдена" in data["detail"]
 
-@pytest.mark.asyncio
+
 async def test_update_returns_success(client: AsyncClient, create_product, schema_product_update_valid, test_async_session):
     product_id = create_product.id
     response = await client.patch(f"/api/v1/products/{product_id}", json=schema_product_update_valid.model_dump())
@@ -106,7 +106,7 @@ async def test_update_returns_success(client: AsyncClient, create_product, schem
         if expected_value is not None:
             assert getattr(db_product, field) == expected_value
 
-@pytest.mark.asyncio
+
 async def test_update_returns_not_valid_schema(client: AsyncClient, schema_product_update_not_valid):
     """
     Тест проверяет, что API возвращает 422 при невалидных данных.
@@ -115,7 +115,7 @@ async def test_update_returns_not_valid_schema(client: AsyncClient, schema_produ
     response = await client.patch("/api/v1/products/1", json=schema_product_update_not_valid)
     assert response.status_code == 422
     
-@pytest.mark.asyncio
+
 async def test_update_returns_not_found_category(client: AsyncClient, create_product, schema_product_update_not_found_category):
     category_id = schema_product_update_not_found_category.category_id
     product_id = create_product.id
@@ -125,7 +125,7 @@ async def test_update_returns_not_found_category(client: AsyncClient, create_pro
     data = response.json()
     assert f"Категория с ID: {category_id} не найдена" in data["detail"]
 
-@pytest.mark.asyncio
+
 async def test_update_returns_not_found_product(client: AsyncClient, schema_product_update_valid):
     product_id = 99
     response = await client.patch(f"/api/v1/products/{product_id}", 
@@ -134,7 +134,7 @@ async def test_update_returns_not_found_product(client: AsyncClient, schema_prod
     data = response.json()
     assert f"Продукт с ID: {product_id} не найден" in data["detail"]
 
-@pytest.mark.asyncio
+
 async def test_delete_returns_success(client: AsyncClient, create_product, test_async_session):
     product_id = create_product.id
     response = await client.delete(f"/api/v1/products/{product_id}")
@@ -142,7 +142,7 @@ async def test_delete_returns_success(client: AsyncClient, create_product, test_
     product_db = await test_async_session.get(Product, product_id)
     assert product_db is None
 
-@pytest.mark.asyncio
+
 async def test_delete_returns_not_found_product(client: AsyncClient):
     product_id = 99
     response = await client.delete(f"/api/v1/products/{product_id}")

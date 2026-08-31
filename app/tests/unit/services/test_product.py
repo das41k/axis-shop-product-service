@@ -80,7 +80,6 @@ def get_list_product():
     return products
 
 
-@pytest.mark.asyncio
 async def test_get_all(product_service, product_repo, get_list_product):
     products = get_list_product
         
@@ -96,7 +95,6 @@ async def test_get_all(product_service, product_repo, get_list_product):
     product_repo.get_all.assert_called_once()
         
     
-@pytest.mark.asyncio
 async def test_valid_get_by_id(product_service, product_repo, get_product):
     
     product_repo.get_by_id.return_value = get_product
@@ -109,7 +107,6 @@ async def test_valid_get_by_id(product_service, product_repo, get_product):
     product_repo.get_by_id.assert_called_once_with(get_product.id)
 
        
-@pytest.mark.asyncio
 async def test_not_found_get_by_id(product_service, product_repo):
     product_id = 33
     product_repo.get_by_id.return_value = None
@@ -122,7 +119,6 @@ async def test_not_found_get_by_id(product_service, product_repo):
     product_repo.get_by_id.assert_called_once_with(product_id)
 
 
-@pytest.mark.asyncio
 async def test_valid_create(product_service, product_repo, category_repo, get_product, product_for_create_data):
     category_repo.get_by_id.return_value = Category(id=1, title="Кухня")
     product_repo.create.return_value = get_product
@@ -136,7 +132,7 @@ async def test_valid_create(product_service, product_repo, category_repo, get_pr
     category_repo.get_by_id.assert_called_once_with(product_for_create_data.category_id)
     product_repo.create.assert_called_once_with(product_for_create_data.model_dump())
     
-@pytest.mark.asyncio
+
 async def test_not_found_category_create(product_service, product_repo, category_repo, product_for_create_data):
     category_repo.get_by_id.return_value = None
     
@@ -151,7 +147,6 @@ async def test_not_found_category_create(product_service, product_repo, category
     product_repo.create.assert_not_called()
     
 
-@pytest.mark.asyncio
 async def test_valid_update(product_service, product_repo, category_repo, get_product, product_for_update_data, product_updated_data):
     product_repo.get_by_id.return_value = get_product
     category_repo.get_by_id.return_value = get_product.category
@@ -167,7 +162,6 @@ async def test_valid_update(product_service, product_repo, category_repo, get_pr
     category_repo.get_by_id.assert_called_once_with(product_for_update_data.category_id)
     product_repo.update.assert_called_once_with(get_product, product_for_update_data.model_dump())
 
-@pytest.mark.asyncio
 async def test_not_found_category_update(product_service, product_repo, category_repo, product_for_update_data, get_product):
     product_repo.get_by_id.return_value = get_product
     category_repo.get_by_id.return_value = None
@@ -184,7 +178,6 @@ async def test_not_found_category_update(product_service, product_repo, category
     product_repo.update.assert_not_called()
        
  
-@pytest.mark.asyncio
 async def test_not_found_product_update(product_service, product_repo, category_repo, product_for_update_data):
     product_repo.get_by_id.return_value = None
     product_id = 1
@@ -199,7 +192,6 @@ async def test_not_found_product_update(product_service, product_repo, category_
     product_repo.update.assert_not_called()
         
     
-@pytest.mark.asyncio
 async def test_valid_delete(product_service, product_repo, get_product):
     product_repo.delete_by_id.return_value = True
     
@@ -208,7 +200,6 @@ async def test_valid_delete(product_service, product_repo, get_product):
     product_repo.delete_by_id.assert_called_once_with(get_product.id)
     
 
-@pytest.mark.asyncio
 async def test_not_found_product_delete(product_service, product_repo):
     product_repo.delete_by_id.return_value = False
     product_id = 99

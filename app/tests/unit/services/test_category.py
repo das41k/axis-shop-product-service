@@ -61,7 +61,7 @@ def category_updated_data(category_data) -> Category:
     category_data.description = None
     return category_data
 
-@pytest.mark.asyncio
+
 async def test_get_all_valid(category_service, category_repo, category_data_list):
     category_repo.get_all.return_value = category_data_list
     
@@ -74,7 +74,7 @@ async def test_get_all_valid(category_service, category_repo, category_data_list
         
     category_repo.get_all.assert_called_once()
     
-@pytest.mark.asyncio
+
 async def test_get_by_id_valid(category_service, category_repo, category_data):
     category_repo.get_by_id.return_value = category_data
     
@@ -85,7 +85,7 @@ async def test_get_by_id_valid(category_service, category_repo, category_data):
     
     category_repo.get_by_id.assert_called_once_with(category_data.id)
     
-@pytest.mark.asyncio
+
 async def test_not_found_get_by_id(category_service, category_repo):
     category_repo.get_by_id.return_value = None
     category_id = 99
@@ -96,7 +96,7 @@ async def test_not_found_get_by_id(category_service, category_repo):
     assert f"Категория с ID: {category_id} не найдена" in str(ex.value)
     category_repo.get_by_id.assert_called_once_with(category_id)
     
-@pytest.mark.asyncio
+
 async def test_valid_create(category_service, category_repo, category_data, category_for_create_data):
     category_repo.exists_by_title.return_value = False
     category_repo.create.return_value = category_data
@@ -109,7 +109,7 @@ async def test_valid_create(category_service, category_repo, category_data, cate
     category_repo.exists_by_title.assert_called_once_with(category_for_create_data.title)
     category_repo.create.assert_called_once_with(category_for_create_data.model_dump())
 
-@pytest.mark.asyncio
+
 async def test_title_exists_create(category_service, category_repo, category_for_create_data):
     category_repo.exists_by_title.return_value = True
     category_title = category_for_create_data.title
@@ -121,7 +121,7 @@ async def test_title_exists_create(category_service, category_repo, category_for
     category_repo.exists_by_title.assert_called_once_with(category_title)
     category_repo.update.assert_not_called()
     
-@pytest.mark.asyncio
+
 async def test_valid_update(category_service, category_repo, category_data, category_for_update_data, category_updated_data):
     category_repo.get_by_id.return_value = category_data
     category_repo.exists_by_title.return_value = False
@@ -137,7 +137,7 @@ async def test_valid_update(category_service, category_repo, category_data, cate
     category_repo.exists_by_title.assert_called_once_with(category_for_update_data.title)
     category_repo.update.assert_called_once_with(category_data, category_for_update_data.model_dump())
     
-@pytest.mark.asyncio
+
 async def test_not_found_update(category_service, category_repo, category_for_update_data):
     category_repo.get_by_id.return_value = None
     category_id = 99
@@ -151,7 +151,7 @@ async def test_not_found_update(category_service, category_repo, category_for_up
     category_repo.exists_by_title.assert_not_called()
     category_repo.update.assert_not_called()
     
-@pytest.mark.asyncio
+
 async def test_title_exists_update(category_service, category_repo, category_for_update_data, category_data):
     category_repo.get_by_id.return_value = category_data
     category_repo.exists_by_title.return_value = True
@@ -166,7 +166,7 @@ async def test_title_exists_update(category_service, category_repo, category_for
     category_repo.exists_by_title.assert_called_once_with(category_title)
     category_repo.update.assert_not_called()
     
-@pytest.mark.asyncio
+
 async def test_valid_delete(category_service, category_repo, category_data):
     category_repo.has_products.return_value = False
     category_repo.delete_by_id.return_value = True
@@ -176,7 +176,7 @@ async def test_valid_delete(category_service, category_repo, category_data):
     category_repo.has_products.assert_called_once_with(category_data.id)
     category_repo.delete_by_id.assert_called_once_with(category_data.id)
     
-@pytest.mark.asyncio
+
 async def test_has_products_delete(category_service, category_repo):
     category_repo.has_products.return_value = True
     category_id = 99
@@ -189,7 +189,7 @@ async def test_has_products_delete(category_service, category_repo):
     category_repo.has_products.assert_called_once_with(category_id)
     category_repo.delete_by_id.assert_not_called()
     
-@pytest.mark.asyncio
+
 async def test_not_found_delete(category_service, category_repo):
     category_repo.has_products.return_value = False
     category_id = 99
