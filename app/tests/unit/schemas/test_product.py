@@ -18,6 +18,7 @@ from app.tests.helpers.validation_helpers import (
     assert_valid_model_creation
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.unit_schemas]
 
 # ============ ТЕСТЫ ДЛЯ ProductCreate ============
 

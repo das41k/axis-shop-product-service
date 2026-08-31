@@ -14,6 +14,8 @@ from app.tests.helpers.validation_helpers import (
     assert_valid_model_creation
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.unit_schemas]
+
 class TestCategoryCreate:
     
     @pytest.mark.parametrize("data", VALID_CATEGORY_DATA)
