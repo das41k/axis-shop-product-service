@@ -7,6 +7,7 @@ from app.models.category import Category
 from app.schemas.product import ProductResponse, ProductCreate, ProductUpdate
 from app.tests.helpers.assertions import assert_product_equal
 
+pytestmark = [pytest.mark.integration, pytest.mark.api]
 
 async def test_get_all_returns_created_products(client: AsyncClient, create_products):
     response = await client.get("/api/v1/products")

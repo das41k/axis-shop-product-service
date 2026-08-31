@@ -9,6 +9,8 @@ from app.schemas.category import CategoryResponse, CategoryCreate, CategoryUpdat
 from app.models.category import Category
 from app.exceptions.category import CategoryNotFoundException, CategoryIsExistsException, CategoryContainsProductsException
 
+pytestmark = [pytest.mark.unit, pytest.mark.unit_services]
+
 @pytest.fixture
 def category_repo(mocker):
     return mocker.AsyncMock(autospec = AbstractCategoryRepository)

@@ -5,6 +5,7 @@ from app.tests.helpers.assertions import assert_category_equal
 from app.models.category import Category
 from app.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 
+pytestmark = [pytest.mark.integration, pytest.mark.api]
 
 async def test_get_all_returns_created_categories(client: AsyncClient, create_categories):
     response = await client.get("/api/v1/categories")

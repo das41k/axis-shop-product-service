@@ -12,6 +12,8 @@ from app.models.category import Category
 from app.schemas.product import ProductResponse, ProductCreate, ProductUpdate
 from app.tests.helpers.assertions import assert_product_equal
 
+pytestmark = [pytest.mark.unit, pytest.mark.unit_services]
+
 async def test_get_all(product_service, product_repo, get_list_product):
     products = get_list_product
         
