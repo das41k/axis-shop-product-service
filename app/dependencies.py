@@ -21,11 +21,18 @@ async def get_category_repository(db: SessionDep) -> AbstractCategoryRepository:
 async def get_product_repository(db: SessionDep) -> AbstractRepository[Product]:
     return ProductRepository(db)
 
+async def get_redis() -> AsyncGenerator[Redis, None]:
+    if redis_manager.redis is None:
+        raise RuntimeError("Redis не инициализирован!")
+    return redis_manager.redis
+
+RedisDep = Annotated[Redis, Depends(get_redis)]
+
 CategoryRepoDep = Annotated[AbstractCategoryRepository, Depends(get_category_repository)]
 ProductRepoDep = Annotated[AbstractRepository[Product], Depends(get_product_repository)]
 
-async def get_category_service(category_repository: CategoryRepoDep) -> CategoryService:
-    return CategoryService(category_repository)
+async def get_category_service(category_repository: CategoryRepoDep, redis: RedisDep) -> CategoryService:
+    return CategoryService(category_repository, redis)
 
 async def get_product_service(product_repository: ProductRepoDep,
                               category_repository: CategoryRepoDep) -> ProductService:
@@ -33,11 +40,3 @@ async def get_product_service(product_repository: ProductRepoDep,
 
 CategoryServiceDep = Annotated[CategoryService, Depends(get_category_service)]
 ProductServiceDep = Annotated[ProductService, Depends(get_product_service)]
-
-async def get_redis() -> AsyncGenerator[Redis, None]:
-    if redis_manager.redis is None:
-        raise RuntimeError("Redis не инициализирован!")
-    return redis_manager.redis
-
-RedisDep = Annotated[Redis, Depends(get_redis)]
-    
