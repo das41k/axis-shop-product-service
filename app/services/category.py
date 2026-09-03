@@ -6,6 +6,7 @@ from pydantic import TypeAdapter
 from ..repository.base import AbstractCategoryRepository
 from ..schemas.category import CategoryCreate, CategoryUpdate, CategoryResponse
 from ..exceptions.category import CategoryNotFoundException, CategoryIsExistsException, CategoryContainsProductsException
+from ..core.cache.category_keys import CategoryCacheKeys
 
 class CategoryService:
     def __init__(self, category_repository: AbstractCategoryRepository,
@@ -16,7 +17,7 @@ class CategoryService:
     async def get_all(self) -> list[CategoryResponse]:
         logger.info("Запрос на получение всех категорий")
         logger.debug("Проверяем есть ли данные в кеше")
-        cached_data = await self.redis.get("categories:all")
+        cached_data = await self.redis.get(CategoryCacheKeys.ALL)
         adapter = TypeAdapter(list[CategoryResponse])
         if cached_data is not None:
             logger.debug("Данные найдены в кеше, возвращаем их")
@@ -29,13 +30,13 @@ class CategoryService:
         logger.info(f"Получено {len(categories)} категорий")
         response_data = [CategoryResponse.model_validate(c) for c in categories]
         json_bytes = adapter.dump_json(response_data)
-        await self.redis.set("categories:all", json_bytes, ex=5000)
+        await self.redis.set(CategoryCacheKeys.ALL, json_bytes, ex=5000)
         return response_data
     
     async def get_by_id(self, category_id: int) -> Optional[CategoryResponse]:
         logger.info(f"Поиск категории с ID: {category_id}")
         logger.debug("Проверяем есть ли данные в кеше")
-        cached_data = await self.redis.get(f"categories:{category_id}")
+        cached_data = await self.redis.get(CategoryCacheKeys.category_by_id(category_id))
         adapter = TypeAdapter(CategoryResponse)
         if cached_data is not None:
             logger.debug("Данные найдены в кеше, возвращаем их")
@@ -50,7 +51,7 @@ class CategoryService:
         logger.info(f"Найдена категория: '{category.title}' (ID: {category_id})")
         response_data = CategoryResponse.model_validate(category)
         json_bytes = adapter.dump_json(response_data)
-        await self.redis.set(f"categories:{category_id}", json_bytes, ex=5000)
+        await self.redis.set(CategoryCacheKeys.category_by_id(category_id), json_bytes, ex=5000)
         return response_data
         
     async def create(self, category_create: CategoryCreate) -> CategoryResponse:
@@ -68,7 +69,7 @@ class CategoryService:
         logger.info(f"Категория создана: '{category.title}' (ID: {category.id})")
         logger.debug("Удаляем старые данные из кеша")
        
-        await self.redis.delete("categories:all")
+        await self.redis.delete(CategoryCacheKeys.ALL)
         return CategoryResponse.model_validate(category)
     
     async def update(self, category_id: int, category_update: CategoryUpdate) -> Optional[CategoryResponse]:
@@ -93,8 +94,8 @@ class CategoryService:
         logger.info(f"Категория обновлена: '{category_up.title}' (ID: {category_id})")
         
         logger.debug("Удаляем старые данные из кеша")
-        await self.redis.delete(f"categories:{category_id}")
-        await self.redis.delete("categories:all")
+        await self.redis.delete(CategoryCacheKeys.category_by_id(category_id))
+        await self.redis.delete(CategoryCacheKeys.ALL)
         return CategoryResponse.model_validate(category_up)
     
     async def delete_by_id(self, category_id: int) -> None:
@@ -113,5 +114,5 @@ class CategoryService:
         logger.info(f"Категория с ID: {category_id} успешно удалена")
         
         logger.debug("Удаляем старые данные из кеша")
-        await self.redis.delete("categories:all")
-        await self.redis.delete(f"categories:{category_id}")
+        await self.redis.delete(CategoryCacheKeys.category_by_id(category_id))
+        await self.redis.delete(CategoryCacheKeys.ALL)
