@@ -1,6 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
+from redis.asyncio import Redis
 
 from .core.database import get_async_session
 from .repository.base import AbstractRepository, AbstractCategoryRepository
@@ -10,6 +11,7 @@ from .services.category import CategoryService
 from .services.product import ProductService
 from .models.category import Category
 from .models.product import Product
+from .core.redis_manager import redis_manager
 
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 
@@ -31,3 +33,11 @@ async def get_product_service(product_repository: ProductRepoDep,
 
 CategoryServiceDep = Annotated[CategoryService, Depends(get_category_service)]
 ProductServiceDep = Annotated[ProductService, Depends(get_product_service)]
+
+async def get_redis() -> AsyncGenerator[Redis, None]:
+    if redis_manager.redis is None:
+        raise RuntimeError("Redis не инициализирован!")
+    return redis_manager.redis
+
+RedisDep = Annotated[Redis, Depends(get_redis)]
+    
