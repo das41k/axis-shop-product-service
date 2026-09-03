@@ -4,11 +4,15 @@ from contextlib import asynccontextmanager
 from .core.database import async_engine, Base
 from .routes.v1.router import router as v1_router
 from .core.config import settings
+from .core.redis_manager import redis_manager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"Приложение: {settings.APP_NAME} запущено по адресу: http://{settings.APP_HOST}:{settings.APP_PORT}")
+    logger.info("Устанавливаем соединение с REDIS")
+    await redis_manager.connect()
+    logger.info("Соединение с Redis установлено")
     logger.info("Устанавливаем соединение с базой данных")
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -16,7 +20,9 @@ async def lifespan(app: FastAPI):
     yield
     logger.info(f"Приложение: {settings.APP_NAME} завершает выполнение")
     await async_engine.dispose()
-    logger.info("Успешно закрыли соединение с базой данных")    
+    logger.info("Успешно закрыли соединение с базой данных")  
+    await redis_manager.close()  
+    logger.info("Успешно закрыли соединение с Redis")
 
 def create_app(enable_lifespan: bool = True):
     app = FastAPI(
