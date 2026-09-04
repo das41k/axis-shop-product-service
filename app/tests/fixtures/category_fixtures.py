@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime, timezone
+from redis.asyncio import Redis
 from app.models.category import Category
 from app.models.product import Product
 from app.schemas.category import CategoryCreate, CategoryUpdate
@@ -57,8 +58,12 @@ def category_repo(mocker):
     return mocker.AsyncMock(autospec=AbstractCategoryRepository)
 
 @pytest.fixture
-def category_service(category_repo):
-    return CategoryService(category_repo)
+def category_redis(mocker):
+    return mocker.AsyncMock(autospec = Redis)
+
+@pytest.fixture
+def category_service(category_repo, category_redis):
+    return CategoryService(category_repo, category_redis)
 
 # ============ DB FIXTURES (для интеграционных тестов) ============
 @pytest.fixture
