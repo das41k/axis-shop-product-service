@@ -1,15 +1,9 @@
 import pytest
-from unittest.mock import AsyncMock
-import uuid
-from datetime import timezone, datetime
-from app.services.product import ProductService
-from app.repository.base import AbstractRepository
-from app.models.product import Product
 from app.exceptions.product import ProductNotFoundException
 from app.exceptions.category import CategoryNotFoundException
 from app.models.category import Category
 from app.models.category import Category
-from app.schemas.product import ProductResponse, ProductCreate, ProductUpdate
+from app.schemas.product import ProductResponse
 from app.tests.helpers.assertions import assert_product_equal
 
 pytestmark = [pytest.mark.unit, pytest.mark.unit_services]
