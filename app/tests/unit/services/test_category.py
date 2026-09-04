@@ -45,6 +45,7 @@ async def test_get_all_valid_from_redis(category_service, category_repo, categor
 
     category_redis.get.assert_called_once_with(CategoryCacheKeys.ALL)
     category_repo.get_all.assert_not_called()
+    category_repo.set.assert_not_called()
     
 async def test_get_by_id_valid_from_db(category_service, category_repo, category_redis, category_data):
     category_redis.get.return_value = None
